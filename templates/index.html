@@ -1,0 +1,941 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Waste Detection | Smart Recycling Assistant</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #4f46e5;
+            --primary-dark: #3730a3;
+            --secondary-color: #06b6d4;
+            --success-color: #10b981;
+            --warning-color: #f59e0b;
+            --danger-color: #ef4444;
+            --dark-color: #1f2937;
+            --light-color: #f8fafc;
+            --gradient-1: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --gradient-2: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            --gradient-3: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+            --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+            --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px 0;
+            position: relative;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                radial-gradient(circle at 20% 80%, rgba(120, 119, 198, 0.3) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(255, 119, 198, 0.3) 0%, transparent 50%),
+                radial-gradient(circle at 40% 40%, rgba(120, 219, 255, 0.3) 0%, transparent 50%);
+            z-index: -1;
+        }
+
+        .container {
+            max-width: 900px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .header-section {
+            text-align: center;
+            margin-bottom: 3rem;
+            color: white;
+        }
+
+        .header-section h1 {
+            font-size: 3.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            text-shadow: 0 4px 20px rgba(0,0,0,0.3);
+            animation: fadeInUp 1s ease-out;
+        }
+
+        .header-section .subtitle {
+            font-size: 1.2rem;
+            font-weight: 300;
+            opacity: 0.9;
+            margin-bottom: 2rem;
+            animation: fadeInUp 1s ease-out 0.2s both;
+        }
+
+        .feature-badges {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            animation: fadeInUp 1s ease-out 0.4s both;
+            flex-wrap: wrap;
+        }
+
+        .feature-badge {
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 50px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .feature-badge:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .main-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 24px;
+            box-shadow: var(--shadow-xl);
+            padding: 2.5rem;
+            margin-bottom: 2rem;
+            animation: slideInUp 0.8s ease-out;
+        }
+
+        .upload-zone {
+            border: 2px dashed #cbd5e1;
+            border-radius: 16px;
+            padding: 3rem 2rem;
+            text-align: center;
+            transition: all 0.3s ease;
+            background: linear-gradient(145deg, #f8fafc, #f1f5f9);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .upload-zone::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(79, 70, 229, 0.1) 0%, transparent 70%);
+            transform: scale(0);
+            transition: transform 0.6s ease;
+        }
+
+        .upload-zone:hover {
+            border-color: var(--primary-color);
+            background: linear-gradient(145deg, #f0f4ff, #e0e7ff);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .upload-zone:hover::before {
+            transform: scale(1);
+        }
+
+        .upload-zone.drag-over {
+            border-color: var(--success-color);
+            background: linear-gradient(145deg, #f0fdf4, #dcfce7);
+            transform: scale(1.02);
+        }
+
+        .upload-icon {
+            font-size: 4rem;
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .upload-zone:hover .upload-icon {
+            transform: scale(1.1) rotate(5deg);
+        }
+
+        .file-input {
+            display: none;
+        }
+
+        .upload-text {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--dark-color);
+            margin-bottom: 0.5rem;
+        }
+
+        .upload-subtext {
+            color: #64748b;
+            font-size: 0.9rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .file-info {
+            background: rgba(79, 70, 229, 0.1);
+            border: 1px solid rgba(79, 70, 229, 0.2);
+            border-radius: 12px;
+            padding: 1rem;
+            margin-top: 1rem;
+            font-size: 0.9rem;
+            color: var(--primary-dark);
+        }
+
+        .upload-btn {
+            background: var(--gradient-1);
+            border: none;
+            border-radius: 12px;
+            padding: 1rem 2rem;
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: white;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            min-height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .upload-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .upload-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(79, 70, 229, 0.3);
+        }
+
+        .upload-btn:hover::before {
+            left: 100%;
+        }
+
+        .upload-btn:disabled {
+            background: #94a3b8;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .results-section {
+            animation: fadeIn 0.8s ease-out;
+        }
+
+        .results-header {
+            text-align: center;
+            margin-bottom: 2rem;
+            color: white;
+        }
+
+        .results-header h2 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.3);
+        }
+
+        .result-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 20px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            box-shadow: var(--shadow-lg);
+            transition: all 0.3s ease;
+            animation: slideInUp 0.6s ease-out;
+        }
+
+        .result-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-xl);
+        }
+
+        .result-image {
+            border-radius: 16px;
+            box-shadow: var(--shadow-md);
+            transition: all 0.3s ease;
+            width: 100%;
+            height: auto;
+        }
+
+        .result-image:hover {
+            transform: scale(1.02);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .download-btn {
+            background: var(--gradient-3);
+            border: none;
+            border-radius: 12px;
+            padding: 0.75rem 1.5rem;
+            font-weight: 600;
+            color: white;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.3s ease;
+            margin-top: 1rem;
+        }
+
+        .download-btn:hover {
+            background: linear-gradient(135deg, #0ea5e9 0%, #06b6d4 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(6, 182, 212, 0.3);
+            color: white;
+        }
+
+        .alert {
+            border: none;
+            border-radius: 12px;
+            padding: 1rem 1.5rem;
+            margin-bottom: 2rem;
+            box-shadow: var(--shadow-md);
+            animation: slideInDown 0.5s ease-out;
+        }
+
+        .alert-success {
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(5, 150, 105, 0.1));
+            color: #065f46;
+            border-left: 4px solid var(--success-color);
+        }
+
+        .alert-danger {
+            background: linear-gradient(135deg, rgba(239, 68, 68, 0.1), rgba(220, 38, 38, 0.1));
+            color: #991b1b;
+            border-left: 4px solid var(--danger-color);
+        }
+
+        .spinner-border {
+            width: 1.2rem;
+            height: 1.2rem;
+        }
+
+        /* Animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes slideInUp {
+            from {
+                opacity: 0;
+                transform: translateY(50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes slideInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .container {
+                padding: 0 15px;
+            }
+
+            .header-section h1 {
+                font-size: 2.5rem;
+            }
+
+            .main-card {
+                padding: 1.5rem;
+                border-radius: 16px;
+            }
+
+            .upload-zone {
+                padding: 2rem 1rem;
+            }
+
+            .feature-badges {
+                gap: 0.5rem;
+            }
+
+            .feature-badge {
+                font-size: 0.8rem;
+                padding: 0.4rem 0.8rem;
+            }
+        }
+
+        /* Loading animation */
+        .loading-dots::after {
+            content: '.';
+            animation: dots 2s steps(5, end) infinite;
+        }
+
+        @keyframes dots {
+            0%, 20% {
+                color: rgba(0,0,0,0);
+                text-shadow:
+                    .25em 0 0 rgba(0,0,0,0),
+                    .5em 0 0 rgba(0,0,0,0);
+            }
+            40% {
+                color: white;
+                text-shadow:
+                    .25em 0 0 rgba(0,0,0,0),
+                    .5em 0 0 rgba(0,0,0,0);
+            }
+            60% {
+                text-shadow:
+                    .25em 0 0 white,
+                    .5em 0 0 rgba(0,0,0,0);
+            }
+            80%, 100% {
+                text-shadow:
+                    .25em 0 0 white,
+                    .5em 0 0 white;
+            }
+        }
+
+        /* Summary Statistics Styles */
+        .summary-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: var(--shadow-lg);
+            animation: slideInUp 0.6s ease-out;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin-bottom: 0.5rem;
+            background: var(--gradient-1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            color: #64748b;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .class-distribution {
+            text-align: center;
+        }
+
+        .class-badge {
+            display: inline-block;
+            padding: 0.5rem 1rem;
+            border-radius: 25px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: white;
+            margin: 0.2rem;
+            transition: all 0.3s ease;
+        }
+
+        .class-badge-0 {
+            background: linear-gradient(135deg, #10b981, #059669);
+        }
+
+        .class-badge-1 {
+            background: linear-gradient(135deg, #3b82f6, #2563eb);
+        }
+
+        .class-badge-2 {
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+        }
+
+        .class-badge-3 {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+        }
+
+        .class-badge:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+
+        /* Detection Details Styles */
+        .detection-info {
+            background: rgba(79, 70, 229, 0.05);
+            border: 1px solid rgba(79, 70, 229, 0.1);
+            border-radius: 12px;
+            padding: 1rem;
+        }
+
+        .detection-title {
+            color: var(--primary-dark);
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 0.75rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .detections-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .detection-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.5rem;
+            background: rgba(255, 255, 255, 0.7);
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .detection-item:hover {
+            background: rgba(255, 255, 255, 0.9);
+            transform: translateX(5px);
+        }
+
+        .detection-class {
+            font-weight: 600;
+            color: var(--dark-color);
+            text-transform: capitalize;
+        }
+
+        .confidence-badge {
+            background: var(--gradient-2);
+            color: white;
+            padding: 0.25rem 0.75rem;
+            border-radius: 15px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            min-width: 60px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <!-- Header Section -->
+    <div class="header-section">
+        <h1>🧠 AI Waste Detection</h1>
+        <p class="subtitle">Advanced YOLO-powered recycling assistant that identifies metals, paper, and plastic</p>
+        
+        <div class="feature-badges">
+            <span class="feature-badge">
+                <i class="bi bi-lightning-charge"></i> YOLOv11 Powered
+            </span>
+            <span class="feature-badge">
+                <i class="bi bi-images"></i> Multiple Upload
+            </span>
+            <span class="feature-badge">
+                <i class="bi bi-recycle"></i> Smart Detection
+            </span>
+            <span class="feature-badge">
+                <i class="bi bi-cloud-arrow-up"></i> Instant Results
+            </span>
+        </div>
+    </div>
+
+    <!-- Success/Error Messages -->
+    {% if success %}
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        <i class="bi bi-check-circle-fill me-2"></i>{{ success }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+    {% endif %}
+    
+    {% if error %}
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        <i class="bi bi-exclamation-triangle-fill me-2"></i>{{ error }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+    {% endif %}
+    
+    <!-- Main Upload Card -->
+    <div class="main-card">
+        <form method="post" enctype="multipart/form-data" id="uploadForm">
+            <!-- Upload Zone -->
+            <div class="upload-zone" id="uploadZone">
+                <div class="upload-icon">
+                    <i class="bi bi-cloud-upload"></i>
+                </div>
+                
+                <div class="upload-text">Drop your images here or click to browse</div>
+                <div class="upload-subtext">
+                    Support for multiple files: PNG, JPG, JPEG, GIF, BMP, WEBP
+                </div>
+                
+                <input type="file" id="images" name="images" class="file-input" 
+                       accept="image/png,image/jpeg,image/jpg,image/gif,image/bmp,image/webp" 
+                       multiple required>
+                
+                <div id="fileCount" class="file-info" style="display: none;"></div>
+            </div>
+            
+            <!-- Upload Button -->
+            <button type="submit" class="btn upload-btn w-100 mt-4" id="uploadBtn" disabled>
+                <span id="btnText">
+                    <i class="bi bi-magic"></i>
+                    Analyze & Detect Objects
+                </span>
+                <div id="btnSpinner" class="spinner-border d-none" role="status"></div>
+            </button>
+        </form>
+    </div>
+
+    <!-- Results Section -->
+    {% if uploaded %}
+    <div class="results-section">
+        <div class="results-header">
+            <h2>
+                <i class="bi bi-bullseye"></i>
+                Detection Results
+            </h2>
+            <p class="opacity-75">AI has analyzed your images and identified waste materials</p>
+        </div>
+        
+        <!-- Summary Statistics -->
+        {% if summary_stats %}
+        <div class="summary-card mb-4">
+            <div class="row text-center">
+                <div class="col-md-3 mb-3">
+                    <div class="stat-item">
+                        <div class="stat-number">{{ summary_stats.total_images }}</div>
+                        <div class="stat-label">Images Processed</div>
+                    </div>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <div class="stat-item">
+                        <div class="stat-number">{{ summary_stats.total_detections }}</div>
+                        <div class="stat-label">Total Detections</div>
+                    </div>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <div class="stat-item">
+                        <div class="stat-number">{{ summary_stats.avg_detections }}</div>
+                        <div class="stat-label">Avg per Image</div>
+                    </div>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <div class="stat-item">
+                        <div class="stat-number">{{ summary_stats.class_counts|length }}</div>
+                        <div class="stat-label">Object Types</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Class Distribution -->
+            {% if summary_stats.class_counts %}
+            <div class="class-distribution mt-4">
+                <h6 class="mb-3"><i class="bi bi-pie-chart"></i> Detection Breakdown</h6>
+                <div class="row">
+                    {% for class_name, count in summary_stats.class_counts.items() %}
+                    <div class="col-auto mb-2">
+                        <span class="class-badge class-badge-{{ loop.index0 % 4 }}">
+                            <i class="bi bi-tag"></i> {{ class_name|title }}: {{ count }}
+                        </span>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+        </div>
+        {% endif %}
+        
+        <div class="row">
+            {% if detection_results %}
+                {% for result in detection_results %}
+                <div class="col-md-6 col-lg-4 mb-4">
+                    <div class="result-card">
+                        <img src="{{ url_for('send_file', filename=result.filename) }}" 
+                             class="result-image mb-3" 
+                             alt="Detected objects" />
+                        
+                        <!-- Detection Details -->
+                        <div class="detection-info mb-3">
+                            <h6 class="detection-title">
+                                <i class="bi bi-search"></i> 
+                                {{ result.detection_count }} Detection{{ 's' if result.detection_count != 1 else '' }}
+                            </h6>
+                            
+                            {% if result.detections %}
+                            <div class="detections-list">
+                                {% for detection in result.detections %}
+                                <div class="detection-item">
+                                    <span class="detection-class">{{ detection.class|title }}</span>
+                                    <span class="confidence-badge">
+                                        {{ "%.1f"|format(detection.confidence) }}%
+                                    </span>
+                                </div>
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="text-center">
+                            <a class="download-btn" href="{{ url_for('send_file', filename=result.filename) }}" download>
+                                <i class="bi bi-download"></i>
+                                Download Result
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+                {% for filename in filenames %}
+                <div class="col-md-6 col-lg-4 mb-4">
+                    <div class="result-card">
+                        <img src="{{ url_for('send_file', filename=filename) }}" 
+                             class="result-image mb-3" 
+                             alt="Detected objects" />
+                        
+                        <div class="text-center">
+                            <a class="download-btn" href="{{ url_for('send_file', filename=filename) }}" download>
+                                <i class="bi bi-download"></i>
+                                Download Result
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            {% endif %}
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    // Get DOM elements
+    const fileInput = document.getElementById('images');
+    const uploadZone = document.getElementById('uploadZone');
+    const fileCountDiv = document.getElementById('fileCount');
+    const uploadBtn = document.getElementById('uploadBtn');
+    const btnText = document.getElementById('btnText');
+    const btnSpinner = document.getElementById('btnSpinner');
+    const uploadForm = document.getElementById('uploadForm');
+
+    // File handling functions
+    function updateFileDisplay(files) {
+        if (files.length > 0) {
+            const fileText = files.length === 1 ? 'file' : 'files';
+            fileCountDiv.innerHTML = `
+                <div class="text-center">
+                    <i class="bi bi-files me-2"></i>
+                    <strong>${files.length} ${fileText} selected</strong>
+                </div>
+            `;
+            
+            // Show file names if 5 or fewer files
+            if (files.length <= 5) {
+                const fileNames = Array.from(files)
+                    .map(f => `<span class="badge bg-primary me-1 mb-1">${f.name}</span>`)
+                    .join('');
+                fileCountDiv.innerHTML += `<div class="mt-2">${fileNames}</div>`;
+            } else {
+                fileCountDiv.innerHTML += `<div class="mt-2"><small>And ${files.length - 5} more files...</small></div>`;
+            }
+            
+            fileCountDiv.style.display = 'block';
+            uploadBtn.disabled = false;
+        } else {
+            fileCountDiv.style.display = 'none';
+            uploadBtn.disabled = true;
+        }
+    }
+
+    function validateFiles(files) {
+        const allowedTypes = ['image/png', 'image/jpeg', 'image/jpg', 'image/gif', 'image/bmp', 'image/webp'];
+        const maxSize = 16 * 1024 * 1024; // 16MB
+        const validFiles = [];
+        
+        for (let file of files) {
+            if (!allowedTypes.includes(file.type)) {
+                showAlert(`File "${file.name}" is not a supported image format.`, 'warning');
+                continue;
+            }
+            if (file.size > maxSize) {
+                showAlert(`File "${file.name}" is too large. Maximum size is 16MB.`, 'warning');
+                continue;
+            }
+            validFiles.push(file);
+        }
+        
+        return validFiles;
+    }
+
+    function showAlert(message, type = 'info') {
+        const alertDiv = document.createElement('div');
+        alertDiv.className = `alert alert-${type} alert-dismissible fade show`;
+        alertDiv.innerHTML = `
+            <i class="bi bi-info-circle-fill me-2"></i>${message}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        `;
+        
+        const container = document.querySelector('.container');
+        const firstCard = container.querySelector('.main-card');
+        container.insertBefore(alertDiv, firstCard);
+        
+        // Auto-hide after 4 seconds
+        setTimeout(() => {
+            if (alertDiv.parentNode) {
+                const bsAlert = new bootstrap.Alert(alertDiv);
+                bsAlert.close();
+            }
+        }, 4000);
+    }
+
+    // File input change handler
+    fileInput.addEventListener('change', function(e) {
+        const validFiles = validateFiles(e.target.files);
+        updateFileDisplay(validFiles);
+    });
+
+    // Drag and drop functionality
+    uploadZone.addEventListener('click', () => {
+        fileInput.click();
+    });
+
+    uploadZone.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        uploadZone.classList.add('drag-over');
+    });
+
+    uploadZone.addEventListener('dragleave', (e) => {
+        e.preventDefault();
+        uploadZone.classList.remove('drag-over');
+    });
+
+    uploadZone.addEventListener('drop', (e) => {
+        e.preventDefault();
+        uploadZone.classList.remove('drag-over');
+        
+        const files = Array.from(e.dataTransfer.files);
+        const validFiles = validateFiles(files);
+        
+        if (validFiles.length > 0) {
+            // Create a new FileList with valid files
+            const dt = new DataTransfer();
+            validFiles.forEach(file => dt.items.add(file));
+            fileInput.files = dt.files;
+            
+            updateFileDisplay(validFiles);
+        }
+    });
+
+    // Form submission handling
+    uploadForm.addEventListener('submit', function(e) {
+        const files = fileInput.files;
+        
+        if (files.length === 0) {
+            e.preventDefault();
+            showAlert('Please select at least one image file.', 'warning');
+            return;
+        }
+        
+        // Show loading state
+        btnText.innerHTML = `
+            <i class="bi bi-gear-fill"></i>
+            <span class="loading-dots">Processing</span>
+        `;
+        btnSpinner.classList.remove('d-none');
+        uploadBtn.disabled = true;
+        
+        // Disable the upload zone
+        uploadZone.style.pointerEvents = 'none';
+        uploadZone.style.opacity = '0.6';
+    });
+
+    // Auto-hide existing alerts
+    setTimeout(function() {
+        const alerts = document.querySelectorAll('.alert');
+        alerts.forEach(alert => {
+            const bsAlert = new bootstrap.Alert(alert);
+            bsAlert.close();
+        });
+    }, 6000);
+
+    // Add some interactive animations
+    document.addEventListener('DOMContentLoaded', function() {
+        // Animate feature badges on scroll
+        const badges = document.querySelectorAll('.feature-badge');
+        badges.forEach((badge, index) => {
+            badge.style.animationDelay = `${0.6 + (index * 0.1)}s`;
+        });
+        
+        // Add pulse animation to upload icon
+        const uploadIcon = document.querySelector('.upload-icon i');
+        setInterval(() => {
+            uploadIcon.style.animation = 'pulse 0.6s ease-in-out';
+            setTimeout(() => {
+                uploadIcon.style.animation = '';
+            }, 600);
+        }, 3000);
+    });
+
+    // Add pulse keyframes
+    const style = document.createElement('style');
+    style.textContent = `
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+    `;
+    document.head.appendChild(style);
+</script>
+</body>
+</html>

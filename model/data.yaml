@@ -1,0 +1,13 @@
+train: ../train/images
+val: ../valid/images
+test: ../test/images
+
+nc: 2
+names: ['Dry Waste', 'Wet Waste']
+
+roboflow:
+  workspace: first-yeiwu
+  project: wet-dry-r35dx-v7cvg
+  version: 1
+  license: CC BY 4.0
+  url: https://universe.roboflow.com/first-yeiwu/wet-dry-r35dx-v7cvg/dataset/1
